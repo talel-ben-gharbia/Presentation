@@ -5,42 +5,56 @@ import { supabase } from './supabaseClient';
 
 const PUBLIC = process.env.PUBLIC_URL;
 
-const slidesData = [
-  { title: 'Introduction', content: 'Lorem ipsum dolor sit amet, consectetur adipiscing elit.' },
-  { title: 'Overview', content: 'Sed do eiusmod tempor incididunt ut labore et dolore magna aliqua.' },
-  { title: 'Details', content: 'Ut enim ad minim veniam, quis nostrud exercitation ullamco laboris.' },
-  { title: 'Analysis', content: 'Duis aute irure dolor in reprehenderit in voluptate velit esse cillum.' },
-  { title: 'Conclusion', content: 'Excepteur sint occaecat cupidatat non proident, sunt in culpa qui officia.' },
+const tabImgs = [
+  'tab_1.png',
+  'tab_2.png',
+  'tab_3.png',
+  'tab_4.png',
+  'tab_5.png',
+  'tab_6.png',
+  'tab_7.png',
+  'tab_8.png',
 ];
 
 const tabBounds = [
-  { left: 63.69, top: 28.32, width: 15.89, height: 37.89 },
-  { left: 84.11, top: 6.21, width: 13.84, height: 20.74 },
-  { left: 21.33, top: 4.11, width: 14.44, height: 28 },
-  { left: 21.33, top: 38.84, width: 14.2, height: 28.84 },
-  { left: 85.26, top: 33.16, width: 11.66, height: 13.26 },
-  { left: 64.41, top: 4.21, width: 7.61, height: 20.32 },
-  { left: 73.17, top: 4.11, width: 7.79, height: 20.42 },
-  { left: 2.78, top: 12, width: 15.95, height: 33.89 },
+  { left: 2.78, top: 12, width: 15.95, height: 33.89 },       // 1 → was #8
+  { left: 21.33, top: 4.11, width: 14.44, height: 28 },       // 2 → was #3
+  { left: 21.33, top: 38.84, width: 14.2, height: 28.84 },    // 3 → was #4
+  { left: 64.41, top: 4.21, width: 7.61, height: 20.32 },     // 4 → was #6
+  { left: 73.17, top: 4.11, width: 7.79, height: 20.42 },     // 5 → was #7
+  { left: 63.69, top: 28.32, width: 15.89, height: 37.89 },   // 6 → was #1
+  { left: 84.11, top: 6.21, width: 13.84, height: 20.74 },    // 7 → was #2
+  { left: 85.26, top: 33.16, width: 11.66, height: 13.26 },   // 8 → was #5
 ];
-
-const getOriginFrom = (artworkId) => {
-  const el = document.querySelector(`[data-artwork="${artworkId}"]`);
-  if (!el) return { x: 0, y: 0 };
-  const r = el.getBoundingClientRect();
-  return {
-    x: r.left + r.width / 2 - window.innerWidth / 2,
-    y: r.top + r.height / 2 - window.innerHeight / 2,
-  };
-};
 
 function App() {
   const [selected, setSelected] = useState(null);
   const [slide, setSlide] = useState(0);
   const [artworkSlides, setArtworkSlides] = useState([]);
   const [origin, setOrigin] = useState({ x: 0, y: 0 });
+  const [pendingArtwork, setPendingArtwork] = useState(null);
+  const [hoveredArtwork, setHoveredArtwork] = useState(null);
+
+  const fetchSlides = async (artworkId) => {
+    console.log('Fetching slides for artTable:', artworkId);
+    setArtworkSlides([]);
+    try {
+      const { data, error } = await supabase
+        .from('slides')
+        .select('*')
+        .eq('artTable', artworkId)
+        .order('slide');
+      if (error) console.error('Supabase error:', error);
+      console.log('Fetched slides:', data);
+      if (data) setArtworkSlides(data);
+    } catch (e) {
+      console.error('Fetch failed:', e);
+    }
+  };
 
   const openModal = async (i, slideIndex = 0, e) => {
+    console.log('Opening artwork ID:', i);
+    setPendingArtwork(null);
     const rect = e?.currentTarget?.getBoundingClientRect();
     if (rect) {
       setOrigin({
@@ -50,57 +64,68 @@ function App() {
     }
     setSelected(i);
     setSlide(slideIndex);
-    setArtworkSlides([]);
-
-    try {
-      const { data, error } = await supabase
-        .from('slides')
-        .select('*')
-        .eq('artTable', i)
-        .order('slide');
-      if (error) console.error('Supabase error:', error);
-      setArtworkSlides(data || []);
-    } catch (e) {
-      console.error('Fetch failed:', e);
-    }
+    fetchSlides(i);
   };
 
-  const closeModal = () => {
+  const closeModal = (keepPending) => {
+    if (!keepPending) setPendingArtwork(null);
     setSelected(null);
   };
 
   const goTo = (i) => {
-    if (i < 0) {
-      if (selected > 1) {
-        setOrigin(getOriginFrom(selected - 1));
-        setSelected(selected - 1);
-        setSlide(slidesData.length - 1);
-      }
-      return;
-    }
-    if (i >= slidesData.length) {
-      if (selected < 8) {
-        setOrigin(getOriginFrom(selected + 1));
-        setSelected(selected + 1);
-        setSlide(0);
-      }
-      return;
-    }
     setSlide(i);
   };
 
+  // eslint-disable-next-line react-hooks/exhaustive-deps
+  useEffect(() => {
+    if (slide >= artworkSlides.length && artworkSlides.length > 0) {
+      setSlide(artworkSlides.length - 1);
+    }
+  }, [artworkSlides, slide]);
+
   /* eslint-disable react-hooks/exhaustive-deps */
   useEffect(() => {
-    if (!selected) return;
     const onKey = (e) => {
-      if (e.key === 'ArrowRight') goTo(slide + 1);
-      if (e.key === 'ArrowLeft') goTo(slide - 1);
-      if (e.key === 'Escape') closeModal();
+      if (selected) {
+        if (e.key === 'ArrowRight') {
+          if (slide + 1 >= artworkSlides.length) {
+            if (selected < 8) {
+              setPendingArtwork(selected + 1);
+              closeModal(true);
+            }
+          } else {
+            setSlide(slide + 1);
+          }
+        } else if (e.key === 'ArrowLeft') {
+          if (slide - 1 < 0) {
+            if (selected > 1) {
+              setPendingArtwork(selected - 1);
+              closeModal(true);
+            }
+          } else {
+            setSlide(slide - 1);
+          }
+        } else if (e.key === 'Escape') {
+          closeModal();
+        }
+      } else if (pendingArtwork && (e.key === 'ArrowRight' || e.key === 'ArrowLeft')) {
+        const target = pendingArtwork;
+        setPendingArtwork(null);
+        const el = document.querySelector(`[data-artwork="${target}"]`);
+        if (el) {
+          const r = el.getBoundingClientRect();
+          setOrigin({
+            x: r.left + r.width / 2 - window.innerWidth / 2,
+            y: r.top + r.height / 2 - window.innerHeight / 2,
+          });
+        }
+        openModal(target, 0);
+      }
     };
     window.addEventListener('keydown', onKey);
     return () => window.removeEventListener('keydown', onKey);
-  }, [selected, slide]);
-  /* eslint-enable react-hooks/exhaustive-deps */
+  }, [selected, slide, pendingArtwork, artworkSlides]);
+  /* eslint-enable */
 
   return (
     <div className="App" style={{
@@ -117,13 +142,38 @@ function App() {
         { left: 74.89, top: 25.16 },
         { left: 8.58, top: 46.53 },
       ].map((pos, i) => (
-        <div key={i} className="petit-papier" style={{ left: `${pos.left}%`, top: `${pos.top}%`, backgroundImage: `url(${PUBLIC}/Images/petit%20papier.png)` }} />
+        <motion.div key={i} className="petit-papier"
+          style={{ left: `${pos.left}%`, top: `${pos.top}%`, backgroundImage: `url(${PUBLIC}/Images/petit%20papier.png)` }}
+          animate={{
+            filter: !hoveredArtwork
+              ? 'none'
+              : hoveredArtwork === i + 1
+                ? 'brightness(1)'
+                : 'brightness(0.3)',
+          }}
+          transition={{ duration: 0.35, ease: 'easeOut' }}
+        />
       ))}
-      {[1,2,3,4,5,6,7,8].map(i => (
-        <img key={i} src={`${PUBLIC}/Images/tab_${i}.png`} alt={`tab ${i}`} className="tab-img" />
+      {tabImgs.map((name, i) => (
+        <motion.img key={i} src={`${PUBLIC}/Images/${name}`} alt={`tab ${i + 1}`}
+          className="tab-img"
+          animate={{
+            filter: !hoveredArtwork
+              ? 'drop-shadow(4px 8px 1px rgba(80, 35, 10, 0.45))'
+              : hoveredArtwork === i + 1
+                ? 'drop-shadow(4px 8px 3px rgba(80, 35, 10, 0.65)) brightness(1.12)'
+                : 'drop-shadow(4px 8px 1px rgba(80, 35, 10, 0.45)) brightness(0.3)',
+          }}
+          transition={{ duration: 0.35, ease: 'easeOut' }}
+        />
       ))}
       {tabBounds.map((b, i) => (
-        <div key={i} className="hit-area" data-artwork={i + 1} style={{ left: `${b.left}%`, top: `${b.top}%`, width: `${b.width}%`, height: `${b.height}%` }} onClick={(e) => openModal(i + 1, 0, e)} />
+        <div key={i} className="hit-area" data-artwork={i + 1}
+          style={{ left: `${b.left}%`, top: `${b.top}%`, width: `${b.width}%`, height: `${b.height}%` }}
+          onMouseEnter={() => setHoveredArtwork(i + 1)}
+          onMouseLeave={() => setHoveredArtwork(null)}
+          onClick={(e) => openModal(i + 1, 0, e)}
+        />
       ))}
       <img src={`${PUBLIC}/Images/logo bhar.png`} alt="logo bhar" className="premium-shadow" />
       <img src={`${PUBLIC}/Images/logo isbat.png`} alt="logo isbat" className="premium-shadow" />
@@ -147,12 +197,27 @@ function App() {
               transition={{ type: 'spring', damping: 22, stiffness: 260, mass: 0.7 }}
               onClick={e => e.stopPropagation()}
             >
-              <button className="modal-close" onClick={closeModal}>&times;</button>
-              <div className="slide-counter">{slide + 1} / {slidesData.length}</div>
+              <motion.button
+                className="modal-close"
+                whileHover={{ scale: 1.1, rotate: 90 }}
+                whileTap={{ scale: 0.9 }}
+                transition={{ type: 'spring', stiffness: 400 }}
+                onClick={closeModal}
+              >
+                &times;
+              </motion.button>
+              <motion.div
+                className="slide-counter"
+                key={slide}
+                initial={{ opacity: 0, y: -10 }}
+                animate={{ opacity: 1, y: 0 }}
+                transition={{ duration: 0.25 }}
+              >
+                {artworkSlides.length > 0 ? slide + 1 : '—'} / {artworkSlides.length}
+              </motion.div>
               <div className="slide-track">
-                {slidesData.map((s, i) => {
-                  const dbSlide = artworkSlides.find(db => db.slide === i + 1);
-                  const img = dbSlide?.Image_url || null;
+                {artworkSlides.map((s, i) => {
+                  const img = s.Image_url || null;
                   return (
                     <div key={i} className={`slide-content ${i === slide ? 'active' : ''}`}
                       style={img ? {
@@ -160,16 +225,21 @@ function App() {
                         backgroundSize: 'auto 100%',
                         backgroundRepeat: 'no-repeat',
                         backgroundPosition: 'center'
-                      } : {}}>
-                      {!img && <><h2>{s.title}</h2><p>{s.content}</p></>}
-                    </div>
+                      } : {}} />
                   );
                 })}
               </div>
               <div className="slide-nav">
                 <div className="dots">
-                  {slidesData.map((_, i) => (
-                    <span key={i} className={`dot ${i === slide ? 'active' : ''}`} onClick={() => goTo(i)} />
+                  {artworkSlides.map((_, i) => (
+                    <motion.span
+                      key={i}
+                      className={`dot ${i === slide ? 'active' : ''}`}
+                      whileHover={{ scale: 1.4 }}
+                      whileTap={{ scale: 0.85 }}
+                      transition={{ type: 'spring', stiffness: 400 }}
+                      onClick={() => goTo(i)}
+                    />
                   ))}
                 </div>
               </div>
