@@ -76,20 +76,7 @@
   display: flex;
   flex-direction: column;
   padding: 0;
-  opacity: 0;
-  transform: scale(0.9) translateY(20px);
-  transition: all 0.25s ease;
   overflow: hidden;
-}
-
-.modal-enter {
-  opacity: 1;
-  transform: scale(1) translateY(0);
-}
-
-.modal-exit {
-  opacity: 0;
-  transform: scale(0.9) translateY(20px);
 }
 
 .modal-close {
@@ -126,8 +113,9 @@
   align-items: center;
   text-align: center;
   opacity: 0;
-  transform: scale(0.95);
-  transition: opacity 0.4s ease, transform 0.4s ease;
+  transform: scale(0.92);
+  transition: opacity 0.55s cubic-bezier(0.16, 1, 0.3, 1),
+              transform 0.55s cubic-bezier(0.16, 1, 0.3, 1);
   pointer-events: none;
 }
 
