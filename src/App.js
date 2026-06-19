@@ -76,14 +76,13 @@ function App() {
     setSlide(i);
   };
 
-  // eslint-disable-next-line react-hooks/exhaustive-deps
+
   useEffect(() => {
     if (slide >= artworkSlides.length && artworkSlides.length > 0) {
       setSlide(artworkSlides.length - 1);
     }
   }, [artworkSlides, slide]);
 
-  /* eslint-disable react-hooks/exhaustive-deps */
   useEffect(() => {
     const onKey = (e) => {
       if (selected) {
@@ -125,7 +124,6 @@ function App() {
     window.addEventListener('keydown', onKey);
     return () => window.removeEventListener('keydown', onKey);
   }, [selected, slide, pendingArtwork, artworkSlides]);
-  /* eslint-enable */
 
   return (
     <div className="App" style={{
