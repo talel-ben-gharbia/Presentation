@@ -63,9 +63,9 @@ function App() {
     setSlide(i);
   };
 
+  /* eslint-disable react-hooks/exhaustive-deps */
   useEffect(() => {
     if (!selected) return;
-    // eslint-disable-next-line react-hooks/exhaustive-deps
     const onKey = (e) => {
       if (e.key === 'ArrowRight') goTo(slide + 1);
       if (e.key === 'ArrowLeft') goTo(slide - 1);
@@ -74,6 +74,7 @@ function App() {
     window.addEventListener('keydown', onKey);
     return () => window.removeEventListener('keydown', onKey);
   }, [selected, slide]);
+  /* eslint-enable react-hooks/exhaustive-deps */
 
   return (
     <div className="App" style={{
