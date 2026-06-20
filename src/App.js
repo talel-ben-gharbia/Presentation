@@ -76,7 +76,26 @@ function App() {
     setSlide(i);
   };
 
-  const openGrandPapier = () => {
+  const openGrandPapier = (e) => {
+    const img = e.currentTarget;
+    if (img.naturalWidth) {
+      const rect = img.getBoundingClientRect();
+      const x = (e.clientX - rect.left) / rect.width;
+      const y = (e.clientY - rect.top) / rect.height;
+      try {
+        const canvas = document.createElement('canvas');
+        canvas.width = img.naturalWidth;
+        canvas.height = img.naturalHeight;
+        const ctx = canvas.getContext('2d');
+        ctx.drawImage(img, 0, 0);
+        const pixel = ctx.getImageData(
+          Math.round(x * img.naturalWidth),
+          Math.round(y * img.naturalHeight),
+          1, 1
+        ).data;
+        if (pixel[3] < 10) return;
+      } catch (_) {}
+    }
     setSelected('grand');
     setSlide(0);
     setOrigin({ x: 0, y: 0 });
