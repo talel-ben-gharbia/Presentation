@@ -22,7 +22,7 @@ const tabBounds = [
   { left: 21.33, top: 38.84, width: 14.2, height: 28.84 },    // 3 → was #4
   { left: 64.41, top: 4.21, width: 7.61, height: 20.32 },     // 4 → was #6
   { left: 73.17, top: 4.11, width: 7.79, height: 20.42 },     // 5 → was #7
-  { left: 63.69, top: 28.32, width: 15.89, height: 37.89 },   // 6 → was #1
+  { left: 63.69, top: 32.32, width: 15.89, height: 37.89 },   // 6 → was #1
   { left: 84.11, top: 6.21, width: 13.84, height: 20.74 },    // 7 → was #2
   { left: 85.26, top: 33.16, width: 11.66, height: 13.26 },   // 8 → was #5
 ];
