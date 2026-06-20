@@ -138,16 +138,16 @@ function App() {
     <div className="App" style={{
       backgroundImage: `url(${PUBLIC}/Images/background_vide.png)`
     }}>
-      <img src={`${PUBLIC}/Images/grand papier.png`} alt="grand papier" className="premium-shadow" style={{ cursor: 'pointer' }} onClick={openGrandPapier} />
+      <img src={`${PUBLIC}/Images/grand papier.png`} alt="grand papier" className="premium-shadow" style={{ cursor: 'pointer', pointerEvents: 'auto' }} onClick={openGrandPapier} />
       {[
-        { left: 69.46, top: 66.84 },
-        { left: 88.85, top: 27.58 },
-        { left: 26.37, top: 32.74 },
-        { left: 26.25, top: 68.32 },
-        { left: 88.91, top: 47.05 },
-        { left: 66.04, top: 25.16 },
-        { left: 74.89, top: 25.16 },
-        { left: 8.58, top: 46.53 },
+        { left: 8.58, top: 46.53 },    // artwork 1 (was #8)
+        { left: 26.37, top: 32.74 },   // artwork 2 (was #3)
+        { left: 26.25, top: 68.32 },   // artwork 3 (was #4)
+        { left: 66.04, top: 25.16 },   // artwork 4 (was #6)
+        { left: 74.89, top: 25.16 },   // artwork 5 (was #7)
+        { left: 69.46, top: 66.84 },   // artwork 6 (was #1)
+        { left: 88.85, top: 27.58 },   // artwork 7 (was #2)
+        { left: 88.91, top: 47.05 },   // artwork 8 (was #5)
       ].map((pos, i) => (
         <motion.div key={i} className="petit-papier"
           style={{ left: `${pos.left}%`, top: `${pos.top}%`, backgroundImage: `url(${PUBLIC}/Images/petit%20papier.png)` }}
