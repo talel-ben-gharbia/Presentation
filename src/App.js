@@ -76,6 +76,15 @@ function App() {
     setSlide(i);
   };
 
+  const openGrandPapier = () => {
+    setSelected('grand');
+    setSlide(0);
+    setOrigin({ x: 0, y: 0 });
+    setArtworkSlides([
+      { Image_url: `${PUBLIC}/Images/1.png` },
+      { Image_url: `${PUBLIC}/Images/2.png` },
+    ]);
+  };
 
   useEffect(() => {
     if (slide >= artworkSlides.length && artworkSlides.length > 0) {
@@ -123,13 +132,13 @@ function App() {
     };
     window.addEventListener('keydown', onKey);
     return () => window.removeEventListener('keydown', onKey);
-  }, [selected, slide, pendingArtwork, artworkSlides]);
+  }, [selected, slide, pendingArtwork, artworkSlides]); // eslint-disable-line react-hooks/exhaustive-deps
 
   return (
     <div className="App" style={{
       backgroundImage: `url(${PUBLIC}/Images/background_vide.png)`
     }}>
-      <img src={`${PUBLIC}/Images/grand papier.png`} alt="grand papier" className="premium-shadow" />
+      <img src={`${PUBLIC}/Images/grand papier.png`} alt="grand papier" className="premium-shadow" style={{ cursor: 'pointer' }} onClick={openGrandPapier} />
       {[
         { left: 69.46, top: 66.84 },
         { left: 88.85, top: 27.58 },
