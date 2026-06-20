@@ -34,7 +34,6 @@ function App() {
   const [origin, setOrigin] = useState({ x: 0, y: 0 });
   const [pendingArtwork, setPendingArtwork] = useState(null);
   const [hoveredArtwork, setHoveredArtwork] = useState(null);
-  const [videoUrl, setVideoUrl] = useState(null);
 
   const fetchSlides = async (artworkId) => {
     console.log('Fetching slides for artTable:', artworkId);
@@ -65,10 +64,12 @@ function App() {
     }
     setSelected(i);
     setSlide(slideIndex);
-    setVideoUrl(null);
     setArtworkSlides([]);
     if (i === 8) {
-      setVideoUrl('https://jxthfywtduzmukxzsuzs.supabase.co/storage/v1/object/public/vdo/WhatsApp%20Video%202026-06-20%20at%208.06.12%20PM.mp4');
+      setArtworkSlides([
+        { type: 'video', Image_url: 'https://jxthfywtduzmukxzsuzs.supabase.co/storage/v1/object/public/vdo/WhatsApp%20Video%202026-06-20%20at%208.06.12%20PM.mp4' },
+        { type: 'image', Image_url: 'https://jxthfywtduzmukxzsuzs.supabase.co/storage/v1/object/public/Images/67.png' },
+      ]);
     } else {
       fetchSlides(i);
     }
@@ -77,7 +78,6 @@ function App() {
   const closeModal = (keepPending) => {
     if (!keepPending) setPendingArtwork(null);
     setSelected(null);
-    setVideoUrl(null);
   };
 
   const goTo = (i) => {
@@ -122,10 +122,6 @@ function App() {
   useEffect(() => {
     const onKey = (e) => {
       if (selected) {
-        if (selected === 8) {
-          if (e.key === 'Escape') closeModal();
-          return;
-        }
         if (e.key === 'ArrowRight') {
           if (slide + 1 >= artworkSlides.length) {
             if (selected < 8) {
@@ -244,49 +240,48 @@ function App() {
               >
                 &times;
               </motion.button>
-              {selected === 8 && videoUrl ? (
-                <video className="slide-video" src={videoUrl} controls autoPlay />
-              ) : (
-                <>
-                  <motion.div
-                    className="slide-counter"
-                    key={slide}
-                    initial={{ opacity: 0, y: -10 }}
-                    animate={{ opacity: 1, y: 0 }}
-                    transition={{ duration: 0.25 }}
-                  >
-                    {artworkSlides.length > 0 ? slide + 1 : '—'} / {artworkSlides.length}
-                  </motion.div>
-                  <div className="slide-track">
-                    {artworkSlides.map((s, i) => {
-                      const img = s.Image_url || null;
-                      return (
-                        <div key={i} className={`slide-content ${i === slide ? 'active' : ''}`}
-                          style={img ? {
-                            backgroundImage: `url("${img}")`,
-                            backgroundSize: 'auto 100%',
-                            backgroundRepeat: 'no-repeat',
-                            backgroundPosition: 'center'
-                          } : {}} />
-                      );
-                    })}
-                  </div>
-                  <div className="slide-nav">
-                    <div className="dots">
-                      {artworkSlides.map((_, i) => (
-                        <motion.span
-                          key={i}
-                          className={`dot ${i === slide ? 'active' : ''}`}
-                          whileHover={{ scale: 1.4 }}
-                          whileTap={{ scale: 0.85 }}
-                          transition={{ type: 'spring', stiffness: 400 }}
-                          onClick={() => goTo(i)}
-                        />
-                      ))}
+              <motion.div
+                className="slide-counter"
+                key={slide}
+                initial={{ opacity: 0, y: -10 }}
+                animate={{ opacity: 1, y: 0 }}
+                transition={{ duration: 0.25 }}
+              >
+                {artworkSlides.length > 0 ? slide + 1 : '—'} / {artworkSlides.length}
+              </motion.div>
+              <div className="slide-track">
+                {artworkSlides.map((s, i) => {
+                  const img = s.Image_url || null;
+                  return (
+                    <div key={i} className={`slide-content ${i === slide ? 'active' : ''}`}
+                      style={s.type !== 'video' && img ? {
+                        backgroundImage: `url("${img}")`,
+                        backgroundSize: 'auto 100%',
+                        backgroundRepeat: 'no-repeat',
+                        backgroundPosition: 'center'
+                      } : {}}
+                    >
+                      {s.type === 'video' && img && (
+                        <video className="slide-video" src={img} controls autoPlay />
+                      )}
                     </div>
-                  </div>
-                </>
-              )}
+                  );
+                })}
+              </div>
+              <div className="slide-nav">
+                <div className="dots">
+                  {artworkSlides.map((_, i) => (
+                    <motion.span
+                      key={i}
+                      className={`dot ${i === slide ? 'active' : ''}`}
+                      whileHover={{ scale: 1.4 }}
+                      whileTap={{ scale: 0.85 }}
+                      transition={{ type: 'spring', stiffness: 400 }}
+                      onClick={() => goTo(i)}
+                    />
+                  ))}
+                </div>
+              </div>
             </motion.div>
           </motion.div>
         )}
