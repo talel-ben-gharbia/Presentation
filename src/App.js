@@ -124,7 +124,9 @@ function App() {
       if (selected) {
         if (e.key === 'ArrowRight') {
           if (slide + 1 >= artworkSlides.length) {
-            if (selected < 8) {
+            if (selected === 'grand') {
+              closeModal();
+            } else if (selected < 8) {
               setPendingArtwork(selected + 1);
               closeModal(true);
             }
